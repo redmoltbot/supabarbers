@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import type { CardInfo } from "@/types";
 import StampPanel from "@/components/StampPanel";
 import Toast, { useToast } from "@/components/Toast";
-import { addLogEntry } from "@/lib/activityLog";
 
 interface CustomerModalProps {
   serialNumber: string;
@@ -56,32 +55,6 @@ export default function CustomerModal({
     fetchCard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serialNumber]);
-
-  const handleSubtractReward = async () => {
-    try {
-      const res = await fetch(`/api/cards/${serialNumber}/subtract-reward`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: serialNumber,
-          rewards: 1,
-          comment: "",
-          purchaseSum: 0.1,
-        }),
-      });
-      if (!res.ok) throw new Error();
-      addLogEntry({
-        cardNumber: serialNumber,
-        action: "subtract-reward",
-        count: 1,
-        comment: "",
-      });
-      showToast("Free cut used", "success");
-      fetchCard();
-    } catch {
-      showToast("Failed to use free cut", "error");
-    }
-  };
 
   const handleSaveEdit = async () => {
     if (!card) return;
