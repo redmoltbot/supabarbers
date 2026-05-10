@@ -1,0 +1,85 @@
+"use client";
+import { useRef, useState } from "react";
+
+interface PinLockProps {
+  onUnlock: () => void;
+}
+
+const CORRECT_PIN = "7777";
+
+export default function PinLock({ onUnlock }: PinLockProps) {
+  const [digits, setDigits] = useState(["", "", "", ""]);
+  const [error, setError] = useState(false);
+  const [shake, setShake] = useState(false);
+  const inputRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
+
+  const handleChange = (index: number, value: string) => {
+    if (!/^\d$/.test(value)) return;
+    const next = [...digits];
+    next[index] = value;
+    setDigits(next);
+    setError(false);
+
+    if (index < 3) {
+      inputRefs[index + 1].current?.focus();
+    }
+
+    if (next.every((d) => d !== "")) {
+      if (next.join("") === CORRECT_PIN) {
+        onUnlock();
+      } else {
+        setShake(true);
+        setError(true);
+        setTimeout(() => {
+          setShake(false);
+          setDigits(["", "", "", ""]);
+          inputRefs[0].current?.focus();
+        }, 600);
+      }
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && digits[index] === "" && index > 0) {
+      inputRefs[index - 1].current?.focus();
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 p-8">
+      <div className="text-6xl mb-4">🔒</div>
+      <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
+        SupaBarbers
+      </h1>
+      <p className="text-lg text-gray-500 mb-8">Enter PIN to continue</p>
+
+      <div className={`flex gap-4 mb-4 ${shake ? "animate-shake" : ""}`}>
+        {inputRefs.map((ref, i) => (
+          <input
+            key={i}
+            ref={ref}
+            type="password"
+            maxLength={1}
+            value={digits[i]}
+            onChange={(e) => handleChange(i, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(i, e)}
+            className={`w-16 h-16 text-center text-3xl font-bold rounded-xl border-2
+              bg-gray-50 dark:bg-gray-800 dark:text-white
+              focus:outline-none focus:ring-2 focus:ring-lime-400
+              ${error ? "border-red-500" : "border-gray-300 focus:border-lime-500"}`}
+            autoFocus={i === 0}
+          />
+        ))}
+      </div>
+
+      {error && (
+        <p className="text-red-500 text-lg font-medium">Incorrect PIN</p>
+      )}
+    </div>
+  );
+}
