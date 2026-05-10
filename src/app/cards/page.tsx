@@ -29,7 +29,7 @@ function formatDate(dateStr: string): string {
 
 function exportCSV(cards: CardRow[]) {
   const today = new Date().toISOString().slice(0, 10);
-  const headers = ["Card ID", "Customer ID", "Customer Name", "Phone", "Email", "Last Active", "Haircuts Used", "Haircuts Left", "Status", "Device"];
+  const headers = ["Card ID", "Customer ID", "Customer Name", "Phone", "Email", "Last Active", "Haircuts Remaining", "Status", "Device"];
   const rows = cards.map((c) => [
     c.id,
     c.customerId ?? "",
@@ -38,7 +38,6 @@ function exportCSV(cards: CardRow[]) {
     c.customer.email ?? "",
     c.updatedAt ?? "",
     String(c.balance?.numberStampsTotal ?? 0),
-    String(c.balance?.stampsBeforeReward ?? 0),
     c.status ?? "",
     c.device ?? "",
   ]);
@@ -62,12 +61,11 @@ export default function CardsPage() {
   // filter state
   const [toDate, setToDate] = useState("");
   const [minStamps, setMinStamps] = useState("");
-  const [maxBeforeReward, setMaxBeforeReward] = useState("");
   const [statusFilter, setStatusFilter] = useState<"" | "installed" | "not_installed">("");
 
   const fetchCards = () => {
     setLoading(true);
-    fetch("/api/cards?templateId=1094508&page=1&itemsPerPage=100")
+    fetch("/api/cards?templateId=1094518&page=1&itemsPerPage=100")
       .then((r) => r.json())
       .then((d) => setCards(d.data ?? []))
       .finally(() => setLoading(false));
@@ -90,25 +88,17 @@ export default function CardsPage() {
         if (total < min) return false;
       }
     }
-    if (maxBeforeReward !== "") {
-      const max = parseInt(maxBeforeReward, 10);
-      if (!isNaN(max) && max >= 0) {
-        const before = c.balance?.stampsBeforeReward ?? 0;
-        if (before > max) return false;
-      }
-    }
     if (statusFilter !== "") {
       if (c.status !== statusFilter) return false;
     }
     return true;
   });
 
-  const hasFilters = toDate || (minStamps !== "" && minStamps !== "0") || maxBeforeReward !== "" || statusFilter !== "";
+  const hasFilters = toDate || (minStamps !== "" && minStamps !== "0") || statusFilter !== "";
 
   const clearFilters = () => {
     setToDate("");
     setMinStamps("");
-    setMaxBeforeReward("");
     setStatusFilter("");
   };
 
@@ -150,7 +140,7 @@ export default function CardsPage() {
           </div>
           <div className="flex-1">
             <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-              Min. Haircuts Used
+              Min. Haircuts Remaining
             </label>
             <input
               type="number"
@@ -158,19 +148,6 @@ export default function CardsPage() {
               placeholder="0"
               value={minStamps}
               onChange={(e) => setMinStamps(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="flex-1">
-            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-              Max. Haircuts Left
-            </label>
-            <input
-              type="number"
-              min="0"
-              placeholder="any"
-              value={maxBeforeReward}
-              onChange={(e) => setMaxBeforeReward(e.target.value)}
               className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 text-sm"
             />
           </div>
@@ -236,15 +213,9 @@ export default function CardsPage() {
               </div>
               <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700 flex flex-wrap gap-x-4 gap-y-1 text-sm">
                 <div>
-                  <span className="text-gray-400">Haircuts used: </span>
+                  <span className="text-gray-400">Haircuts remaining: </span>
                   <span className="text-gray-700 dark:text-gray-300 font-medium">
                     {c.balance?.numberStampsTotal ?? 0}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-gray-400">Haircuts left: </span>
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">
-                    {c.balance?.stampsBeforeReward ?? 0}
                   </span>
                 </div>
                 {c.device && (

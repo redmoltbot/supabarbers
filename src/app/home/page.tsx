@@ -14,7 +14,7 @@ export default function HomePage() {
   const { toast, showToast, hideToast } = useToast();
 
   useEffect(() => {
-    fetch("/api/cards?templateId=1094508&page=1&itemsPerPage=100")
+    fetch("/api/cards?templateId=1094518&page=1&itemsPerPage=100")
       .then((r) => r.json())
       .then((d) => {
         const count = d.meta?.totalItems ?? d.data?.length ?? null;

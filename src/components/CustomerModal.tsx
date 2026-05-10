@@ -170,13 +170,9 @@ export default function CustomerModal({
               <span className="font-mono font-medium dark:text-white break-all">
                 {card.serialNumber}
               </span>
-              <span className="text-gray-500">Haircuts Left</span>
+              <span className="text-gray-500">Haircuts Remaining</span>
               <span className="font-bold text-lime-600 text-2xl">
                 {card.stamps}
-              </span>
-              <span className="text-gray-500">Free Cuts</span>
-              <span className="font-bold text-yellow-500 text-2xl">
-                {card.rewards}
               </span>
               <span className="text-gray-500">Joined</span>
               <span className="dark:text-white">{formatDate(card.createdAt)}</span>
@@ -278,14 +274,6 @@ export default function CustomerModal({
               </h3>
               <StampPanel cardId={serialNumber} onSuccess={fetchCard} />
             </div>
-
-            {/* Use Free Cut */}
-            <button
-              onClick={handleSubtractReward}
-              className="w-full py-4 px-6 text-xl font-bold rounded-2xl bg-yellow-400 text-gray-900 active:scale-95 transition-transform"
-            >
-              Use Free Cut
-            </button>
 
             {/* Management Actions */}
             {confirmDelete ? (
