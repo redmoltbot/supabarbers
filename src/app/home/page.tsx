@@ -40,14 +40,18 @@ export default function HomePage() {
           purchaseSum: 0.1,
         }),
       });
-      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (!res.ok || data.code >= 400) {
+        showToast(data.message || "Action failed", "error");
+        return;
+      }
+      const stamps = Math.max(1, parseInt(stampsStr) || 1);
       addLogEntry({
         cardNumber: cardNum.trim(),
         action,
-        count: Math.max(1, parseInt(stampsStr) || 1),
+        count: stamps,
         comment,
       });
-      const stamps = Math.max(1, parseInt(stampsStr) || 1);
       showToast(
         `${action === "subtract-stamp" ? "Redeemed" : "Topped up"} ${stamps} haircut${stamps !== 1 ? "s" : ""}`,
         "success"
@@ -56,7 +60,7 @@ export default function HomePage() {
       setStampsStr("1");
       setComment("");
     } catch {
-      showToast("Action failed. Check card number.", "error");
+      showToast("Network error. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -82,7 +86,7 @@ export default function HomePage() {
           placeholder="Serial Card Number"
           value={cardNum}
           onChange={(e) => setCardNum(e.target.value)}
-          className="w-full text-xl p-4 rounded-xl border-2 border-gray-300 focus:border-lime-500 focus:outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600"
+          className="w-full text-xl p-4 rounded-xl border-2 border-gray-300 focus:border-[#007A4D] focus:outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600"
         />
         <input
           type="number"
@@ -93,27 +97,27 @@ export default function HomePage() {
             const n = parseInt(stampsStr);
             if (!stampsStr || n < 1 || isNaN(n)) setStampsStr("1");
           }}
-          className="w-full text-xl p-4 rounded-xl border-2 border-gray-300 focus:border-lime-500 focus:outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600"
+          className="w-full text-xl p-4 rounded-xl border-2 border-gray-300 focus:border-[#007A4D] focus:outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600"
         />
         <input
           type="text"
           placeholder="Comment (optional)"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="w-full text-xl p-4 rounded-xl border-2 border-gray-300 focus:border-lime-500 focus:outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600"
+          className="w-full text-xl p-4 rounded-xl border-2 border-gray-300 focus:border-[#007A4D] focus:outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600"
         />
         <div className="flex gap-3">
           <button
             onClick={() => handleStamp("subtract-stamp")}
             disabled={loading}
-            className="flex-1 py-4 px-6 text-xl font-bold rounded-2xl bg-lime-500 text-white disabled:opacity-50 active:scale-95 transition-transform"
+            className="flex-1 py-4 px-6 text-xl font-bold rounded-2xl bg-[#007A4D] text-white disabled:opacity-50 active:scale-95 transition-transform"
           >
             {loading ? "..." : "✂ Redeem"}
           </button>
           <button
             onClick={() => handleStamp("add-stamp")}
             disabled={loading}
-            className="flex-1 py-4 px-6 text-xl font-bold rounded-2xl bg-yellow-400 text-gray-900 disabled:opacity-50 active:scale-95 transition-transform"
+            className="flex-1 py-4 px-6 text-xl font-bold rounded-2xl bg-[#FFB612] text-gray-900 disabled:opacity-50 active:scale-95 transition-transform"
           >
             {loading ? "..." : "+ Top Up"}
           </button>
