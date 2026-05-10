@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Html5Qrcode } from "html5-qrcode";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 
 interface BarcodeScannerProps {
   isOpen: boolean;
@@ -17,11 +17,33 @@ export default function BarcodeScanner({
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [error, setError] = useState<string>("");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const delayRef = useRef<NodeJS.Timeout | null>(null);
+
+  const stopAndClose = useCallback(async (code: string) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    if (delayRef.current) {
+      clearTimeout(delayRef.current);
+    }
+    if (scannerRef.current?.isScanning) {
+      try {
+        await scannerRef.current.stop();
+      } catch {
+        // Ignore stop errors
+      }
+    }
+    if (code) {
+      onScanSuccess(code);
+    }
+    onClose();
+  }, [onScanSuccess, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const startScanner = async () => {
+      setError("");
       try {
         const scanner = new Html5Qrcode("qr-code-reader");
         scannerRef.current = scanner;
@@ -30,7 +52,7 @@ export default function BarcodeScanner({
           fps: 10,
           qrbox: { width: 250, height: 150 },
           aspectRatio: 1.0,
-          formatsToSupport: ["code_128", "code_39"],
+          formatsToSupport: [Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39],
         };
 
         await scanner.start(
@@ -50,7 +72,7 @@ export default function BarcodeScanner({
         // Set timeout for 30 seconds
         timeoutRef.current = setTimeout(() => {
           setError("Couldn't detect barcode. Try again or type manually.");
-          setTimeout(() => stopAndClose(""), 2000);
+          delayRef.current = setTimeout(() => stopAndClose(""), 2000);
         }, 30000);
 
       } catch (err) {
@@ -65,34 +87,20 @@ export default function BarcodeScanner({
       }
     };
 
-    const stopAndClose = async (code: string) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      if (scannerRef.current?.isScanning) {
-        try {
-          await scannerRef.current.stop();
-        } catch {
-          // Ignore stop errors
-        }
-      }
-      if (code) {
-        onScanSuccess(code);
-      }
-      onClose();
-    };
-
     startScanner();
 
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
+      if (delayRef.current) {
+        clearTimeout(delayRef.current);
+      }
       if (scannerRef.current?.isScanning) {
         scannerRef.current.stop().catch(() => {});
       }
     };
-  }, [isOpen, onClose, onScanSuccess]);
+  }, [isOpen, stopAndClose]);
 
   if (!isOpen) return null;
 
