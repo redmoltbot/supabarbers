@@ -22,7 +22,7 @@ export default function StampPanel({ cardId, onSuccess }: StampPanelProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: cardId,
-          stamps: Math.max(1, parseInt(stampsStr) || 1),
+          visits: Math.max(1, parseInt(stampsStr) || 1),
           comment,
           purchaseSum: 0.1,
         }),

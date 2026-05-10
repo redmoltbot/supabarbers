@@ -31,7 +31,7 @@ export default function CustomersPage() {
     setPage(1);
     setLoading(true);
     try {
-      const res = await fetch("/api/cards?templateId=1094518&page=1&itemsPerPage=100");
+      const res = await fetch("/api/cards?templateId=1094541&page=1&itemsPerPage=100");
       const data = await res.json();
       setCards(data.data ?? []);
     } finally {

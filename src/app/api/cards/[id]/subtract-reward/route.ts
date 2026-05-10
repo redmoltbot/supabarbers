@@ -9,7 +9,7 @@ export async function POST(
     const body = await request.json();
     const res = await dwFetch(`/cards/${params.id}/subtract-reward`, {
       method: "POST",
-      body: JSON.stringify({ ...body, templateId: 1094518 }),
+      body: JSON.stringify({ ...body, templateId: 1094541 }),
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });

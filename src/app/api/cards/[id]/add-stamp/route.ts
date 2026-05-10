@@ -7,9 +7,9 @@ export async function POST(
 ) {
   try {
     const body = await request.json();
-    const res = await dwFetch(`/cards/${params.id}/add-stamp`, {
+    const res = await dwFetch(`/cards/${params.id}/add-visit`, {
       method: "POST",
-      body: JSON.stringify({ ...body, templateId: 1094518 }),
+      body: JSON.stringify({ visits: body.visits ?? body.stamps ?? 1, comment: body.comment, purchaseSum: body.purchaseSum }),
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
