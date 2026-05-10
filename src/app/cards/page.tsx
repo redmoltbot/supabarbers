@@ -9,6 +9,7 @@ type CardRow = {
   status: string | null;
   device: string | null;
   balance: {
+    currentNumberOfUses: number;
     numberStampsTotal: number;
     stampsBeforeReward: number;
   } | null;
@@ -37,7 +38,7 @@ function exportCSV(cards: CardRow[]) {
     c.customer.phone ?? "",
     c.customer.email ?? "",
     c.updatedAt ?? "",
-    String(c.balance?.numberStampsTotal ?? 0),
+    String(c.balance?.currentNumberOfUses ?? 0),
     c.status ?? "",
     c.device ?? "",
   ]);
@@ -84,7 +85,7 @@ export default function CardsPage() {
     if (minStamps !== "") {
       const min = parseInt(minStamps, 10);
       if (!isNaN(min) && min > 0) {
-        const total = c.balance?.numberStampsTotal ?? 0;
+        const total = c.balance?.currentNumberOfUses ?? 0;
         if (total < min) return false;
       }
     }
@@ -215,7 +216,7 @@ export default function CardsPage() {
                 <div>
                   <span className="text-gray-400">Haircuts remaining: </span>
                   <span className="text-gray-700 dark:text-gray-300 font-medium">
-                    {c.balance?.numberStampsTotal ?? 0}
+                    {c.balance?.currentNumberOfUses ?? 0}
                   </span>
                 </div>
                 {c.device && (

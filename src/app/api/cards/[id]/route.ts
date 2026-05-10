@@ -17,7 +17,7 @@ export async function GET(
       serialNumber: card.id,
       customerId: card.customerId,
       createdAt: card.createdAt,
-      stamps: card.balance?.numberStampsTotal ?? 0,
+      stamps: card.balance?.currentNumberOfUses ?? 0,
       rewards: card.balance?.numberRewardsUnused ?? 0,
       comment: null,
       downloadUrl: card.installLink || card.shareLink || null,

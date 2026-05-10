@@ -29,7 +29,11 @@ export default function StampPanel({ cardId, onSuccess }: StampPanelProps) {
       });
       const data = await res.json();
       if (!res.ok || data.code >= 400) {
-        showToast(data.message || "Action failed", "error");
+        const msg =
+          action === "subtract-stamp" && (data.code === 422 || data.message?.includes("Operation failed"))
+            ? "No haircuts remaining. Top up first."
+            : data.message || "Action failed";
+        showToast(msg, "error");
         return;
       }
       const stamps = Math.max(1, parseInt(stampsStr) || 1);
